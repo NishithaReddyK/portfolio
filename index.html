@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nishitha Karnati - Portfolio</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Devicon for tech stack icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom styles to match the video's aesthetic */
+        :root {
+            --dark-bg: #0a0a0a;
+            --light-text: #f0f0f0;
+            --medium-text: #a0a0a0;
+            --accent-blue: #007cf0;
+            --accent-cyan: #00dfd8;
+            --card-bg: #1a1a1a;
+            --border-color: #2a2a2a;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            font-family: 'Inter', sans-serif;
+            cursor: none; /* Hide default cursor */
+            overflow-x: hidden;
+        }
+        
+        /* Pre-loader styles */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--dark-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
+            opacity: 1;
+            visibility: visible;
+        }
+        .preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .loader-text {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--light-text);
+            animation: pulse 2s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        .main-content {
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+        .main-content.visible {
+            opacity: 1;
+        }
+
+
+        /* --- Custom Cursor Effect --- */
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 9999;
+            transition: width 0.3s, height 0.3s;
+        }
+        
+        @keyframes rotate-gradient {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .cursor-aura {
+            width: 250px;
+            height: 250px;
+            background: conic-gradient(from 0deg, #00dfd8, #2bff88, #f0ff55, #7a2aff, #007cf0, #00dfd8);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 9998;
+            filter: blur(60px);
+            opacity: 0.25;
+            animation: rotate-gradient 7s linear infinite;
+            transition: opacity 0.3s, transform 0.1s linear;
+        }
+
+        /* Enlarge cursor on interactive elements */
+        body[data-cursor-hover="true"] .cursor-dot {
+           display: none;
+        }
+
+        body[data-cursor-hover="true"] .cursor-aura {
+            opacity: 0.4;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        /* --- Background falling particles effect --- */
+        #background-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* --- General Styling & Animations --- */
+        .gradient-text {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .animated-underline {
+            position: relative;
+            display: inline-block;
+        }
+        .animated-underline::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            transform: scaleX(0);
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            transform-origin: bottom right;
+            transition: transform 0.3s ease-out;
+        }
+        .section-visible .animated-underline::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+        .section-hidden {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .section-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .header {
+            transition: background-color 0.3s ease;
+        }
+        .header-scrolled {
+            background-color: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        .glowing-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        .glowing-card:hover {
+            transform: translateY(-5px);
+        }
+        .glowing-card::before {
+            content: "";
+            position: absolute;
+            width: 150px;
+            height: 150%;
+            background: conic-gradient(from 180deg at 50% 50%, rgba(0, 124, 240, 0) 0%, rgba(0, 223, 216, 0.3) 50%, rgba(0, 124, 240, 0) 100%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: rotate 5s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .glowing-card:hover::before {
+            opacity: 1;
+        }
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        .glowing-card-content {
+            background-color: var(--card-bg);
+            position: relative;
+            z-index: 2;
+            inset: 1px;
+            padding: 1.5rem;
+            border-radius: 1rem;
+        }
+        .tech-icon {
+            position: relative;
+            transition: transform 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .tech-icon i {
+            transition: color 0.3s, filter 0.3s;
+        }
+        .tech-icon:hover {
+            transform: scale(1.1) translateY(-5px);
+        }
+        .tech-icon:hover i {
+            color: var(--accent-cyan);
+            filter: drop-shadow(0 0 8px var(--accent-cyan));
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 2.5rem;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -0.5rem;
+            top: 4px;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background-color: var(--light-text);
+            border: 3px solid var(--dark-bg);
+            z-index: 1;
+            transition: background-color 0.3s;
+        }
+        .timeline-item.section-visible::before {
+             background-color: var(--accent-blue);
+        }
+
+        .tech-category {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 2rem;
+        }
+        .tech-category::before {
+             content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--accent-blue);
+            z-index: 1;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Pre-loader -->
+    <div id="preloader" class="preloader">
+        <div class="loader-text">&lt; Nishitha Karnati /&gt;</div>
+    </div>
+    
+    <div id="main-content" class="main-content">
+        <!-- Custom Cursor -->
+        <div class="cursor-aura"></div>
+        <div class="cursor-dot"></div>
+
+        <!-- Background Canvas -->
+        <canvas id="background-canvas"></canvas>
+
+        <!-- Header -->
+        <header id="header" class="header fixed top-0 left-0 right-0 z-50">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <nav class="flex items-center justify-between h-20">
+                    <a href="#home" class="nav-link text-2xl font-bold hover:text-gray-300 transition-colors">
+                        &lt;Chetan /&gt;
+                    </a>
+                    <div class="hidden md:flex items-center gap-x-8">
+                        <a href="#about" class="nav-link text-gray-300 hover:text-white transition-colors">About</a>
+                        <a href="#tech-stack" class="nav-link text-gray-300 hover:text-white transition-colors">Tech Stack</a>
+                        <a href="#education" class="nav-link text-gray-300 hover:text-white transition-colors">Education</a>
+                        <a href="#certifications" class="nav-link text-gray-300 hover:text-white transition-colors">Certifications</a>
+                        <a href="#projects" class="nav-link text-gray-300 hover:text-white transition-colors">Projects</a>
+                        <a href="#experience" class="nav-link text-gray-300 hover:text-white transition-colors">Experience</a>
+                        <a href="#contact" class="nav-link text-gray-300 hover:text-white transition-colors">Contact</a>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <main class="container mx-auto px-4 max-w-4xl pt-20">
+            <!-- Home Section -->
+            <section id="home" class="min-h-screen flex flex-col justify-center items-center text-center">
+                <div class="space-y-4">
+                    <p class="text-lg text-gray-400">Hi, I'm</p>
+                    <h1 id="name-typewriter" class="text-5xl md:text-7xl font-bold text-white"></h1>
+                    <h2 class="text-2xl md:text-3xl font-semibold gradient-text">Building the future one stack at a time.</h2>
+                    <p class="text-gray-400 max-w-xl mx-auto">AI & ML Enthusiast. I build intelligent solutions, explore data-driven technologies, and create projects that bridge innovation with real-world impact.</p>
+                    <div>
+                        <a href="#contact" class="nav-link mt-6 inline-block bg-white text-black font-semibold px-6 py-3 rounded-full hover:bg-gray-200 transition-all duration-300 transform hover:scale-105">
+                            Contact Me 👋
+                        </a>
+                    </div>
+                </div>
+                <div class="absolute bottom-10 animate-bounce mt-16">
+                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                    </svg>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section id="about" class="py-24 section-hidden">
+                <div class="text-center mb-12">
+                     <h2 class="text-4xl font-bold"><span class="animated-underline">About Me</span></h2>
+                </div>
+                <p class="text-center text-gray-400 max-w-2xl mx-auto">
+                    I am a passionate CSE student with a strong interest in Artificial Intelligence and Machine Learning. I enjoy building intelligent applications, exploring data-driven technologies, and leveraging Python along with modern tools to create innovative solutions. My goal is to craft impactful, user-friendly projects that solve real-world problems while continuously learning and growing as a developer.
+                </p>
+            </section>
+
+            <!-- Tech Stack Section -->
+            <section id="tech-stack" class="py-24 section-hidden">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-bold"><span class="animated-underline">Tech Stack</span></h2>
+                </div>
+                <div class="space-y-12">
+                     <div class="tech-category">
+                        <h3 class="text-2xl font-bold mb-6 text-gray-300">Programming Languages</h3>
+                        <div class="grid grid-cols-4 md:grid-cols-8 gap-x-8 gap-y-12 text-center text-gray-400">
+                             <div class="tech-icon"><i class="devicon-python-plain text-5xl"></i><span>Python</span></div>
+                             <div class="tech-icon"><i class="devicon-java-plain text-5xl"></i><span>Java</span></div>
+                             <div class="tech-icon"><i class="devicon-html5-plain text-5xl"></i><span>HTML5</span></div>
+                             <div class="tech-icon"><i class="devicon-css3-plain text-5xl"></i><span>CSS3</span></div>
+                             <div class="tech-icon"><i class="devicon-javascript-plain text-5xl"></i><span>JavaScript</span></div>
+                             <div class="tech-icon"><i class="devicon-mysql-plain text-5xl"></i><span>SQL</span></div>
+                        </div>
+                    </div>
+                    <div class="tech-category">
+                        <h3 class="text-2xl font-bold mb-6 text-gray-300">Frameworks/Libraries</h3>
+                        <div class="grid grid-cols-4 md:grid-cols-8 gap-x-8 gap-y-12 text-center text-gray-400">
+                            <div class="tech-icon"><i class="devicon-react-original text-5xl"></i><span>ReactJS</span></div>
+                            <div class="tech-icon"><i class="devicon-nodejs-plain text-5xl"></i><span>Node.js</span></div>
+                            <div class="tech-icon"><i class="devicon-express-original text-5xl"></i><span>Express</span></div>
+                            <div class="tech-icon"><i class="devicon-nextjs-original text-5xl"></i><span>Next.js</span></div>
+                            <div class="tech-icon"><i class="devicon-flask-original text-5xl"></i><span>Flask</span></div>
+                            <div class="tech-icon"><i class="devicon-tensorflow-original text-5xl"></i><span>TensorFlow</span></div>
+                        </div>
+                    </div>
+                     <div class="tech-category">
+                        <h3 class="text-2xl font-bold mb-6 text-gray-300">Tools & Databases</h3>
+                        <div class="grid grid-cols-4 md:grid-cols-8 gap-x-8 gap-y-12 text-center text-gray-400">
+                            <div class="tech-icon"><i class="devicon-mongodb-plain text-5xl"></i><span>MongoDB</span></div>
+                            <div class="tech-icon"><i class="devicon-amazonwebservices-original text-5xl"></i><span>AWS</span></div>
+                            <div class="tech-icon"><i class="devicon-git-plain text-5xl"></i><span>Git</span></div>
+                            <div class="tech-icon"><i class="devicon-github-original text-5xl"></i><span>GitHub</span></div>
+                            <div class="tech-icon"><i class="devicon-docker-plain text-5xl"></i><span>Docker</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Education Section -->
+            <section id="education" class="py-24 section-hidden">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-bold"><span class="animated-underline">Education</span></h2>
+                </div>
+                <div class="timeline max-w-2xl mx-auto">
+                    <div class="timeline-item mb-12 section-hidden">
+                        <div class="flex items-center gap-4">
+                            <img src="https://seeklogo.com/images/V/vit-ap-university-logo-A26F824ECD-seeklogo.com.png" alt="VIT-AP Logo" class="w-10 h-10 bg-white rounded-full p-1">
+                            <div>
+                                <h3 class="text-xl font-semibold">Vellore Institute of Technology, AP</h3>
+                                <p class="text-md text-gray-400">B.Tech - Computer Science and Engineering(AI/ML)</p>
+                                <p class="text-sm text-gray-500">2022 - 2026</p>
+                            </div>
+                        </div>
+                        <p class="mt-2 pl-14 text-gray-400">&bull; CGPA: 8.44</p>
+                    </div>
+                    <div class="timeline-item mb-12 section-hidden">
+                        <div class="flex items-center gap-4">
+                            <img src="https://img-cdn.thepublive.com/fit-in/1280x960/filters:format(webp)/pcq/media/post_banners/wp-content/uploads/2018/12/Narayana-Group.jpg" alt="Narayana Jr College Logo" class="w-10 h-10 bg-white rounded-full p-1 object-contain">
+                             <div>
+                                <h3 class="text-xl font-semibold">Narayana Jr. College</h3>
+                                <p class="text-md text-gray-400">Board of Intermediate Education</p>
+                                <p class="text-sm text-gray-500">2020 - 2022</p>
+                            </div>
+                        </div>
+                         <p class="mt-2 pl-14 text-gray-400">&bull; Percentage: 95.1%</p>
+                    </div>
+                    <div class="timeline-item section-hidden">
+                         <div class="flex items-center gap-4">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT16FWho8BpwWIO4XCc4lle0yvCNVWQD7Al2w&s" alt="Atkinson High School Logo" class="w-10 h-10 bg-white rounded-full p-1 object-contain">
+                             <div>
+                                <h3 class="text-xl font-semibold">Atkinson High School</h3>
+                                <p class="text-md text-gray-400">Central Board Of Secondary Education</p>
+                                <p class="text-sm text-gray-500">2019 - 2020</p>
+                            </div>
+                        </div>
+                        <p class="mt-2 pl-14 text-gray-400">&bull; Percentage: 78%</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Certifications Section -->
+            <section id="certifications" class="py-24 section-hidden">
+                 <div class="text-center mb-12">
+                    <h2 class="text-4xl font-bold"><span class="animated-underline">Certifications</span></h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <a href="https://www.credly.com/badges/c73ae54f-33e5-46d3-b76e-4e02043de238/public_url" target="_blank" class="glowing-card block">
+                        <div class="glowing-card-content h-full">
+                            <h3 class="font-bold text-lg">AWS Certified Cloud Practitioner</h3>
+                            <p class="text-gray-400">Amazon Web Services</p>
+                            <p class="text-sm text-gray-500 mt-2">Issued: June 2025</p>
+                        </div>
+                    </a>
+                    <a href="https://www.credly.com/badges/04c9eecc-ba4c-43fe-82cc-0770be60b5d8/public_url" target="_blank" class="glowing-card block">
+                        <div class="glowing-card-content h-full">
+                             <h3 class="font-bold text-lg">Azure AI Fundamentals</h3>
+                            <p class="text-gray-400">Microsoft</p>
+                            <p class="text-sm text-gray-500 mt-2">Issued: July 2024</p>
+                        </div>
+                    </a>
+                 </div>
+            </section>
+
+            <!-- Projects Section -->
+            <section id="projects" class="py-24 section-hidden">
+                <div class="text-center mb-12">
+                    <p class="text-sm font-medium text-gray-400 mb-2">Explore My Creations</p>
+                    <h2 class="text-4xl font-bold"><span class="animated-underline">Projects</span></h2>
+                </div>
+                <div class="space-y-16">
+                    <div class="glowing-card">
+                        <div class="glowing-card-content flex flex-col md:flex-row gap-8 items-center">
+                            <div class="md:w-1/2 space-y-4">
+                                <h3 class="text-2xl font-bold">AI-Powdered Surveillance System</h3>
+                                <ul class="list-disc list-inside text-gray-400 space-y-2">
+                                    <li>Developed a real-time anomaly detection system integrating ML/DL models with computer vision techniques.</li>
+                                    <li>Built an interactive Streamlit dashboard for live monitoring, visualization, and instant alerts.</li>
+                                    <li>Applied PyTorch and OpenCV to deliver scalable, accurate, and efficient anomaly detection solutions.</li>
+                                </ul>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="bg-blue-900/50 text-blue-300 text-xs font-semibold px-2.5 py-1 rounded-full">Python</span>
+                                    <span class="bg-green-900/50 text-green-300 text-xs font-semibold px-2.5 py-1 rounded-full">PyTorch</span>
+                                    <span class="bg-yellow-900/50 text-yellow-300 text-xs font-semibold px-2.5 py-1 rounded-full">OpenCV</span>
+                                    <span class="bg-gray-700 text-gray-300 text-xs font-semibold px-2.5 py-1 rounded-full">Streamlit</span>
+                                </div>
+                                <div class="flex gap-4 mt-4">
+                                    <a href="https://github.com/NishithaReddyK/AI-Powdered-surveillance-system" target="_blank" class="text-gray-300 hover:text-white transition">GitHub &rarr;</a>
+                                    <a href="https://honeywell-vjb29pecrowrztaqstrest.streamlit.app/" target="_blank" class="text-gray-300 hover:text-white transition">Live Site &rarr;</a>
+                                </div>
+                            </div>
+                            <div class="md:w-1/2">
+                                <img src="https://placehold.co/600x400/0a0a0a/00dfd8?text=AI+E-Commerce" alt="E-commerce Project Screenshot" class="rounded-lg shadow-lg">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glowing-card">
+                        <div class="glowing-card-content flex flex-col md:flex-row-reverse gap-8 items-center">
+                            <div class="md:w-1/2 space-y-4">
+                                <h3 class="text-2xl font-bold">Full Stack E-commerce Website</h3>
+                                 <ul class="list-disc list-inside text-gray-400 space-y-2">
+                                    <li>Built and deployed a scalable full-stack e-commerce platform with product search, cart system, and admin panel.</li>
+                                    <li>Designed and implemented RESTful APIs for efficient data handling and user management.</li>
+                                    <li>Integrated multiple payment gateways (Stripe, Razorpay, COD) for seamless and secure transactions.</li>
+                                </ul>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="bg-blue-900/50 text-blue-300 text-xs font-semibold px-2.5 py-1 rounded-full">React.js</span>
+                                    <span class="bg-orange-900/50 text-orange-300 text-xs font-semibold px-2.5 py-1 rounded-full">Node.js</span>
+                                    <span class="bg-orange-900/50 text-orange-300 text-xs font-semibold px-2.5 py-1 rounded-full">Express.js</span>
+                                    <span class="bg-orange-900/50 text-orange-300 text-xs font-semibold px-2.5 py-1 rounded-full">MongoDB</span>
+                                </div>
+                                <div class="flex gap-4 mt-4">
+                                    <a href="https://github.com/NishithaReddyK/e-commerce" target="_blank" class="text-gray-300 hover:text-white transition">GitHub &rarr;</a>
+                                    <a href="https://ecommerce-frontend-six-sable.vercel.app/" target="_blank" class="text-gray-300 hover:text-white transition">Live Site &rarr;</a>
+                                </div>
+                            </div>
+                            <div class="md:w-1/2">
+                                <img src="https://placehold.co/600x400/0a0a0a/007cf0?text=Medical+Analytics" alt="Disease Prediction Project Screenshot" class="rounded-lg shadow-lg">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glowing-card">
+                        <div class="glowing-card-content flex flex-col md:flex-row gap-8 items-center">
+                            <div class="md:w-1/2 space-y-4">
+                                <h3 class="text-2xl font-bold">US Visa Application Approval Predictor </h3>
+                                 <ul class="list-disc list-inside text-gray-400 space-y-2">
+                                    <li>Developed an end-to-end ML pipeline for predicting US visa approval with data ingestion, preprocessing, and model training.</li>
+                                    <li>Implemented CI/CD automation using GitHub Actions with Docker containerization for seamless deployments.</li>
+                                    <li>Deployed the system on AWS cloud ensuring scalability, reliability, and production-ready performance.</li>
+                                </ul>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="bg-blue-900/50 text-blue-300 text-xs font-semibold px-2.5 py-1 rounded-full">Python</span>
+                                    <span class="bg-orange-900/50 text-orange-300 text-xs font-semibold px-2.5 py-1 rounded-full">CI/CD</span>
+                                </div>
+                                <div class="flex gap-4 mt-4">
+                                    <a href="https://github.com/NishithaReddyK/US-visa-approval-Ml-ops-" target="_blank" class="text-gray-300 hover:text-white transition">GitHub &rarr;</a>
+                                </div>
+                            </div>
+                            <div class="md:w-1/2">
+                                <img src="https://placehold.co/600x400/0a0a0a/7a2aff?text=Wine+Prediction" alt="Wine Prediction Project Screenshot" class="rounded-lg shadow-lg">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Achievements Section -->
+<section id="experience" class="py-24 section-hidden">
+    <div class="text-center mb-12">
+        <p class="text-sm font-medium text-gray-400 mb-2">My Career Highlights</p>
+        <h2 class="text-4xl font-bold"><span class="animated-underline">Achievements</span></h2>
+    </div>
+    <div class="timeline max-w-2xl mx-auto">
+        
+        <!-- Amazon HackOn -->
+        <div class="timeline-item mb-12 section-hidden">
+            <div class="flex items-center gap-4 mb-2">
+                <img src="https://img.icons8.com/fluency/48/amazon.png" alt="Amazon Logo" class="rounded-full w-10 h-10">
+                <h3 class="text-xl font-semibold">Amazon HackOn Season 6</h3>
+            </div>
+            <h4 class="text-lg font-medium text-gray-300">Top 60 Female Coders (National Level)</h4>
+            <p class="text-sm text-gray-500 mb-4">2025</p>
+            <ul class="list-disc list-inside text-gray-400 space-y-2 pl-2">
+                <li>Selected among the top 60 female coders across India in a national-level hackathon.</li>
+            </ul>
+        </div>
+
+        <!-- Ericsson ERIC Academy -->
+        <div class="timeline-item mb-12 section-hidden">
+            <div class="flex items-center gap-4 mb-2">
+                <img src="https://img.icons8.com/color/48/ericsson.png" alt="Ericsson Logo" class="rounded-full w-10 h-10">
+                <h3 class="text-xl font-semibold">Ericsson ERIC Academy Program</h3>
+            </div>
+            <h4 class="text-lg font-medium text-gray-300">Top 600 Students (Across 9 Countries)</h4>
+            <p class="text-sm text-gray-500 mb-4">2025</p>
+            <ul class="list-disc list-inside text-gray-400 space-y-2 pl-2">
+                <li>Chosen among 600 students worldwide for the prestigious ERIC Academy initiative.</li>
+            </ul>
+        </div>
+
+        <!-- LeetCode -->
+        <div class="timeline-item mb-12 section-hidden">
+            <div class="flex items-center gap-4 mb-2">
+                <img src="https://img.icons8.com/external-tal-revivo-color-tal-revivo/48/external-leetcode-online-judges-and-interview-preparation-platform-logo-color-tal-revivo.png" alt="LeetCode Logo" class="rounded-full w-10 h-10">
+                <h3 class="text-xl font-semibold">LeetCode</h3>
+            </div>
+            <h4 class="text-lg font-medium text-gray-300">200+ Problems Solved | 60 Days Badge</h4>
+            <p class="text-sm text-gray-500 mb-4">2025</p>
+            <ul class="list-disc list-inside text-gray-400 space-y-2 pl-2">
+                <li>Solved 200+ coding problems applying advanced Data Structures & Algorithms.</li>
+                <li>Earned the 60 Days Badge for consistent daily problem-solving.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+
+            <!-- Contact Section -->
+            <section id="contact" class="py-24 section-hidden">
+                <div class="text-center mb-12">
+                    <p class="text-sm font-medium text-gray-400 mb-2">Get In Touch</p>
+                    <h2 class="text-4xl font-bold"><span class="animated-underline">Contact Me</span></h2>
+                </div>
+                <div class="flex flex-col md:flex-row gap-12 items-center">
+                    <div class="md:w-1/3 text-center">
+                         <img src="https://i.pinimg.com/736x/16/a9/57/16a9570117787327d84c592bb7dd01c6.jpg" alt="Nishitha Karnati" class="rounded-full w-48 h-48 mx-auto mb-4 object-cover">
+                         <div class="flex justify-center gap-4">
+                            <a href="mailto:nishikarnati@gmail.com" class="bg-gray-800 p-3 rounded-full hover:bg-gray-700 transition">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
+                            </a>
+                            <a href="https://www.linkedin.com/in/nishitha-karnati/" target="_blank" class="bg-gray-800 p-3 rounded-full hover:bg-gray-700 transition">
+                                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                            </a>
+                         </div>
+                    </div>
+                    <div class="md:w-2/3">
+                        <form action="#" method="POST" class="space-y-4">
+                            <input type="text" placeholder="Your Name" required class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-accent-blue">
+                            <input type="email" placeholder="Your Email" required class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-accent-blue">
+                            <textarea placeholder="Your Message" rows="5" required class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-accent-blue"></textarea>
+                            <button type="submit" class="w-full font-semibold py-3 px-6 rounded-lg bg-gradient-to-r from-accent-blue to-accent-cyan hover:opacity-90 transition-opacity">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="border-t border-gray-800 mt-20">
+            <div class="container mx-auto px-4 max-w-4xl py-12">
+                <div class="text-center">
+                    <h3 class="text-2xl font-bold mb-4">Get in Touch</h3>
+                    <div class="flex justify-center items-center gap-6 mb-8">
+                        <a href="https://wa.me/917702797799" target="_blank" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="w-7 h-7" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><title>WhatsApp</title><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01s-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.204-1.634a11.86 11.86 0 005.785 1.47h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                        </a>
+                        <a href="https://www.instagram.com/nishithaa_karnati/" target="_blank" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="w-7 h-7" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><title>Instagram</title><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.314.935 20.644.523 19.86.218 19.095-.083 18.225-.285 16.947-.344 15.667-.401 15.26-.416 12-.416zM12 3.882c3.267 0 3.667.012 4.943.07 1.18.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.047.413 2.227.057 1.277.07 1.676.07 4.943s-.013 3.666-.07 4.943c-.054 1.18-.249 1.805-.413 2.227-.217.562-.477.96-.896 1.382-.42.419-.82.679-1.38.896-.423.164-1.048.36-2.228.413-1.277.057-1.676.07-4.943.07s-3.666-.013-4.943-.07c-1.18-.054-1.805-.249-2.227-.413-.562-.217-.96-.477-1.382-.896-.419-.42-.679-.82-1.381-.896-.164-.423-.36-1.048-.413-2.228C3.893 15.666 3.882 15.26 3.882 12s.012-3.666.07-4.943c.054-1.18.249-1.805.413-2.227.217-.562.477-.96.896-1.382.42-.419.819-.679 1.381-.896.422-.164 1.047-.36 2.227-.413C8.334 3.893 8.74 3.882 12 3.882zM12 9.75c-2.969 0-5.375 2.406-5.375 5.375s2.406 5.375 5.375 5.375 5.375-2.406 5.375-5.375S14.969 9.75 12 9.75zm0 8.875c-1.933 0-3.5-1.567-3.5-3.5s1.567-3.5 3.5-3.5 3.5 1.567 3.5 3.5-1.567 3.5-3.5 3.5zm6.15-8.985c-.808 0-1.46.652-1.46 1.46s.652 1.46 1.46 1.46 1.46-.652 1.46-1.46-.652-1.46-1.46-1.46z"/></svg>
+                        </a>
+                        <a href="https://github.com/NishithaReddyK" target="_blank" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="w-7 h-7" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                        </a>
+                         <a href="https://drive.google.com/file/d/14flphw49_SFcUOYunGvUZvvJ4a4ngrgQ/view?usp=sharing " target="_blank" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M13.5,16V19H10.5V16H8L12,12L16,16H13.5M13,9V3.5L18.5,9H13Z" /></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="text-center text-gray-500 mt-8">
+                    <p>&copy; 2025 Nishitha Karnati. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Pre-loader Logic ---
+            const preloader = document.getElementById('preloader');
+            const mainContent = document.getElementById('main-content');
+            
+            setTimeout(() => {
+                preloader.classList.add('hidden');
+                mainContent.classList.add('visible');
+            }, 2500); // Animation duration
+
+
+            // --- Custom Cursor Logic ---
+            const cursorDot = document.querySelector('.cursor-dot');
+            const cursorAura = document.querySelector('.cursor-aura');
+            let mouseX = 0, mouseY = 0;
+            let dotX = 0, dotY = 0;
+            let auraX = 0, auraY = 0;
+
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            function animateCursor() {
+                dotX += (mouseX - dotX) * 0.9;
+                dotY += (mouseY - dotY) * 0.9;
+                auraX += (mouseX - auraX) * 0.2;
+                auraY += (mouseY - auraY) * 0.2;
+                cursorDot.style.left = `${dotX}px`;
+                cursorDot.style.top = `${dotY}px`;
+                cursorAura.style.left = `${auraX}px`;
+                cursorAura.style.top = `${auraY}px`;
+
+                requestAnimationFrame(animateCursor);
+            }
+            animateCursor();
+
+            const interactiveElements = document.querySelectorAll('a, button, input, textarea, .tech-icon, .glowing-card');
+            interactiveElements.forEach(el => {
+                el.addEventListener('mouseenter', () => document.body.setAttribute('data-cursor-hover', 'true'));
+                el.addEventListener('mouseleave', () => document.body.removeAttribute('data-cursor-hover'));
+            });
+
+            // --- Background Canvas Animation ---
+            const canvas = document.getElementById('background-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            let particles = [];
+            const numParticles = Math.min(100, window.innerWidth / 15);
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 1.5 + 0.5;
+                    this.speed = Math.random() * 0.5 + 0.2;
+                }
+                update() {
+                    this.y += this.speed;
+                    if (this.y > canvas.height) {
+                        this.y = 0 - this.size;
+                        this.x = Math.random() * canvas.width;
+                    }
+                }
+                draw() {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            function initParticles() {
+                particles = [];
+                for (let i = 0; i < numParticles; i++) {
+                    particles.push(new Particle());
+                }
+            }
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => { p.update(); p.draw(); });
+                requestAnimationFrame(animateParticles);
+            }
+            initParticles();
+            animateParticles();
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                initParticles();
+            });
+            
+            // --- Typewriter Effect ---
+            const nameElement = document.getElementById('name-typewriter');
+            const name = "Chetan Koliparthi";
+            let i = 0;
+            let isDeleting = false;
+            function typeWriter() {
+                if (isDeleting) {
+                     if (i > 0) {
+                        nameElement.innerHTML = name.substring(0, i - 1) + '<span class="animate-ping">|</span>';
+                        i--;
+                        setTimeout(typeWriter, 100);
+                     } else {
+                         isDeleting = false;
+                         setTimeout(typeWriter, 500);
+                     }
+                } else {
+                    if (i < name.length) {
+                        nameElement.innerHTML = name.substring(0, i + 1) + '<span class="animate-ping">|</span>';
+                        i++;
+                        setTimeout(typeWriter, 150);
+                    } else {
+                        isDeleting = true;
+                        setTimeout(typeWriter, 2000);
+                    }
+                }
+            }
+            typeWriter();
+
+            // --- Intersection Observer for animations ---
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('section-visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.section-hidden').forEach(el => observer.observe(el));
+            
+            // --- Smooth Scrolling for nav links ---
+            document.querySelectorAll('a.nav-link').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if(targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+
+            // --- Header Scroll Effect ---
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.classList.add('header-scrolled');
+                } else {
+                    header.classList.remove('header-scrolled');
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
